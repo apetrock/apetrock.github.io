@@ -11,7 +11,7 @@ interface TextInputProps {
   initialText: string;
 }
 
-const TextInput: React.FC<TextInputProps> = ({ onInputChange, initialText }) => {
+const CollapsibleTextInput: React.FC<TextInputProps> = ({ onInputChange, initialText }) => {
   const [inputValue, setInputValue] = useState<string>(initialText);
   const [isMinimized, setIsMinimized] = useState<boolean>(true);
 
@@ -25,12 +25,12 @@ const TextInput: React.FC<TextInputProps> = ({ onInputChange, initialText }) => 
   };
 
   return (
-    <div>
-      <button className='TextInputBtn' onClick={toggleMinimize}>
+    <div className='CollapsibleTextInputPanel'>
+      <button className='CollapsibleTextInputBtn' onClick={toggleMinimize}>
         {isMinimized ? '▶' : '▼'}
       </button>
       {!isMinimized && (
-        <textarea className='TextInput'
+        <textarea className='CollapsibleTextInput'
           value={inputValue}
           onChange={handleInputChange}
         />
@@ -70,13 +70,14 @@ function App() {
   const [uniqueKey, setUniqueKey] = useState('');
   return (
     <div>
+      <ThreeRayMarch className="logo" inputText={data} inputCanvas1={canvas1} uniqueKey={uniqueKey} />
       <div className='parent-div'>
+
         <div>
-          <ThreeRayMarch className="logo" inputText={data} inputCanvas1={canvas1} uniqueKey={uniqueKey} />
           <OffscreenTextInput onCanvas={setCanvas1} onText={setUniqueKey} initialText={"OnSequitur"} />
-          <TextInput onInputChange={setData} initialText={default_transfer()} />
+          <CollapsibleTextInput onInputChange={setData} initialText={default_transfer()} />
         </div>
-        <div className='red' style={{ width: '50%', margin: '0 auto', textAlign: 'left' }}>
+        <div className='red blurb'>
           <p>
             This is the online portfolio for John Delaney. There's not much here,
             but perhaps that will change.  Eventually I'll blog about Darboux Cyclides and

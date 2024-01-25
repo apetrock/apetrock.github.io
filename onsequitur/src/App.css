@@ -15,11 +15,21 @@ body {
   width: 100%;
 }
 
-
-
 .parent-div {
   margin-left: 40px;
   margin-right: 40px;
+}
+
+.blurb {
+  text-align: 'left';
+}
+
+/* For screens wider than 768px */
+@media (min-width: 768px) {
+  .parent-div {
+    margin-left: 300px;
+    margin-right: 300px;
+  }
 }
 
 .Three {
@@ -27,7 +37,19 @@ body {
   width: 100%;
 }
 
-.TextInput {
+.CollapsibleTextInputPanel {
+  display: flex;
+  align-items: flex-start;
+}
+
+.CollapsibleTextInputBtn {
+  border: none;
+  background-color: #000000;
+  color: #ff0000
+}
+
+
+.CollapsibleTextInput {
   width: 95%;
   height: 200px;
   font-size: 1.0em;
@@ -64,11 +86,6 @@ body {
   height: 100%;
 }
 
-.TextInputBtn {
-
-  background-color: #000000;
-  color: #ff0000
-}
 
 .OffscreenTextInput {
   width: 100%;
