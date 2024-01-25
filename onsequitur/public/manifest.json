@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "onsequitur",
+  "name": "onsequitur.com",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,19 +8,26 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    },
-    {
       "src": "onsequitur.png",
       "type": "image/png",
       "sizes": "13720x210"
+    }
+  ],
+  "socials": [
+    {
+      "src": "masto.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    },
+    {
+      "src": "github.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    },
+    {
+      "src": "linkedin.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
     }
   ],
   "start_url": ".",

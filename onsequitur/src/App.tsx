@@ -3,6 +3,7 @@ import React, { useState, ChangeEvent } from 'react';
 import ThreeRayMarch, { default_transfer } from "./three_ray_march";
 import ThreeTextureDiffusion from "./three_rd";
 import OffscreenTextInput from './offscreen_text_input';
+import SocialIcon from './socials';
 import "./App.css";
 
 interface TextInputProps {
@@ -24,7 +25,7 @@ const TextInput: React.FC<TextInputProps> = ({ onInputChange, initialText }) => 
   };
 
   return (
-    <div >
+    <div>
       <button className='TextInputBtn' onClick={toggleMinimize}>
         {isMinimized ? '▶' : '▼'}
       </button>
@@ -57,7 +58,7 @@ const ThreeRayMarchWrapper: React.FC<MarchWrapperProps> = ({
   className, inputText, inputCanvas1, uniqueKey
 }) => {
   return (
-    <div className="app-container">
+    <div className="logo">
       <ThreeRayMarch className="Three" inputText={inputText} inputCanvas1={inputCanvas1} uniqueKey={uniqueKey} />
     </div>
   );
@@ -69,24 +70,31 @@ function App() {
   const [uniqueKey, setUniqueKey] = useState('');
   return (
     <div>
-      <div>
-        <ThreeRayMarchWrapper className="Three" inputText={data} inputCanvas1={canvas1} uniqueKey={uniqueKey} />
-        <OffscreenTextInput onCanvas={setCanvas1} onText={setUniqueKey} initialText={"OnSequitur"} />
-        <TextInput onInputChange={setData} initialText={default_transfer()} />
-      </div>
-      <div className='red' style={{ width: '50%', margin: '0 auto', textAlign: 'left' }}>
-        <p>
-          This is the online portfolio for John Delaney. There's not much here,
-          but perhaps that will change.  Eventually I'll blog about Darboux Cyclides and
-          least squared quadrics, cylinders and all kinds of exciting geometry stuff, but for now, there's a shader up there.
+      <div className='parent-div'>
+        <div>
+          <ThreeRayMarch className="logo" inputText={data} inputCanvas1={canvas1} uniqueKey={uniqueKey} />
+          <OffscreenTextInput onCanvas={setCanvas1} onText={setUniqueKey} initialText={"OnSequitur"} />
+          <TextInput onInputChange={setData} initialText={default_transfer()} />
+        </div>
+        <div className='red' style={{ width: '50%', margin: '0 auto', textAlign: 'left' }}>
+          <p>
+            This is the online portfolio for John Delaney. There's not much here,
+            but perhaps that will change.  Eventually I'll blog about Darboux Cyclides and
+            least squared quadrics, cylinders and all kinds of exciting geometry stuff, but for now, there's a shader up there.
 
-        </p>
-        <p>
-          email: "a dot pet dot rock at gmail dot com"
-        </p>
+          </p>
+          <p>
+            email: "a dot pet dot rock at gmail dot com"
+          </p>
+
+        </div>
       </div>
-      {/*<div> <h2>Project 2: Three Texture Diffusion</h2>
-        <ThreeTextureDiffusionWrapper /> </div>*/}
+
+      <div className='footer'>
+        <SocialIcon url="https://github.com/apetrock/libgaudi" icon="github.svg" />
+        <SocialIcon url="https://genart.social/@Onsequitur" icon="masto.svg" />
+        <SocialIcon url="https://www.linkedin.com/in/john-delaney-9295073/" icon="linkedin.svg" />
+      </div>
     </div>
   );
 }

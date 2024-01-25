@@ -320,7 +320,7 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
     }
   }, [inputCanvas1, uniqueKey]);
 
-  return <div ref={containerRef} />;
+  return <div className={className} ref={containerRef} />;
 };
 
 export default ThreeRayMarch;

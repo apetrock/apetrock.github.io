@@ -10,9 +10,16 @@ body {
   /* Set the height to 100% of the viewport height */
 }
 
-div {
-  height: 100%;
+.logo {
+  height: 40vh;
   width: 100%;
+}
+
+
+
+.parent-div {
+  margin-left: 40px;
+  margin-right: 40px;
 }
 
 .Three {
@@ -52,7 +59,13 @@ div {
   width: 100%;
 }
 
+.TextInputPanel {
+  width: 85%;
+  height: 100%;
+}
+
 .TextInputBtn {
+
   background-color: #000000;
   color: #ff0000
 }
@@ -66,4 +79,15 @@ div {
   background: transparent;
   color: #ff0000;
   text-align: left;
+}
+
+.social-icon {
+  filter: hue-rotate(60deg);
+  margin: 2px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  margin-left: 40px;
 }
