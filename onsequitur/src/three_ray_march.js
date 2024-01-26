@@ -5,13 +5,27 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 function default_transfer() {
   return `
   /////////////////////////////////////////////
-  //internally defined uniforms:
-  //
-  //uniform float time;
-  //uniform highp sampler2D tex0; //onsequitur.png
-  //uniform highp sampler2D tex1; //not used
-  //uniform highp sampler2D tex2; //not used
-  //PI is defined
+  /*  if you want to mess around with volume:
+    
+      the pos variable is a vec3 from 0 to 1
+      with the current position in the volume.
+      return a vec4 for the desired color and
+       pacity
+    
+      internally defined uniforms:
+      uniform float time;
+      uniform highp sampler2D tex0; //onsequitur.png
+      uniform highp sampler2D tex1; //user text input texture
+      uniform highp sampler2D tex2; //not used
+      PI is defined as 3.14159265358979323846
+    
+      some other available functions:
+      float rand(vec2 co) //random number generator
+      float sawtooth(float x, float period)
+      float triangle(float x, float period)
+      vec3 rainbowColor(float value)
+      float easeInOutElastic(float x)
+  */
   /////////////////////////////////////////////
   
   vec4 transfer_fcn(vec3 pos) {
@@ -46,6 +60,7 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
   const rendererRef = useRef(null);
   const cubeRef = useRef(null);
   const tex0Ref = useRef(null);
+  const tex1Ref = useRef(null);
 
   useEffect(() => {
     const loader = new THREE.TextureLoader();
@@ -58,20 +73,22 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
   }, []);
 
   function update_textures() {
-    if (tex0Ref.current && cubeRef.current) {
+    if (!cubeRef.current) return;
+    if (tex0Ref.current) {
       cubeRef.current.material.uniforms.tex0.value = tex0Ref.current;
-      cubeRef.current.material.needsUpdate = true;
+    }
+    if (tex1Ref.current) {
+      cubeRef.current.material.uniforms.tex1.value = tex1Ref.current;
     }
   }
 
   function build_volume_material(input_transfer_fcn) {
-    const bitmapTexture0 = new THREE.TextureLoader().load(process.env.PUBLIC_URL + '/onsequitur.png');
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0.0 },
         volume_scale: { value: new THREE.Vector3(8.0, 2.0, 2.0) },
         volume_pos: { value: new THREE.Vector3(0.0, 0.0, 0.0) },
-        tex0: bitmapTexture0,
+        tex0: { value: null },
         tex1: { value: null },
       },
       vertexShader: `
@@ -314,6 +331,7 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
       texture.wrapS = THREE.ClampToEdgeWrapping;
       texture.wrapT = THREE.ClampToEdgeWrapping;
       texture.needsUpdate = true;
+      tex1Ref.current = texture;
       cubeRef.current.material.uniforms.tex1.value = texture;
       cubeRef.current.material.needsUpdate = true;
       update_textures();

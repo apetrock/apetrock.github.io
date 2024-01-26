@@ -29,6 +29,7 @@ const CollapsibleTextInput: React.FC<TextInputProps> = ({ onInputChange, initial
       <button className='CollapsibleTextInputBtn' onClick={toggleMinimize}>
         {isMinimized ? '▶' : '▼'}
       </button>
+      {isMinimized && <span className='red'>&lt;---If you really want to modify the glsl...</span>}
       {!isMinimized && (
         <textarea className='CollapsibleTextInput'
           value={inputValue}
