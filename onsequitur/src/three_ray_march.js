@@ -10,7 +10,7 @@ function default_transfer() {
       the pos variable is a vec3 from 0 to 1
       with the current position in the volume.
       return a vec4 for the desired color and
-       pacity
+      opacity
     
       internally defined uniforms:
       uniform float time;
@@ -27,15 +27,24 @@ function default_transfer() {
       float easeInOutElastic(float x)
   */
   /////////////////////////////////////////////
-  
-  vec4 transfer_fcn(vec3 pos) {
 
+  vec3 blur(vec3 pos, float r) {
+    pos[0] += r*(2.0*rand(pos.xy) - 1.0);
+    pos[1] += r*(2.0*rand(pos.zy) - 1.0);
+    pos[2] += r*(2.0*rand(pos.xz) - 1.0);
+    return pos;
+  }
+
+  vec4 transfer_fcn(vec3 pos) {
+    
+    float C = 0.1*(1.0 - easeOutQuad(time/2000.0)) + 2e-3;
+
+    pos = blur(pos, C);
     float d = pos.z;
     float dp = pow(pos.z, 3.0);
     float x = pos.x;
     float y = pos.y;
     float t = time;
-    
     
     t = triangle(t, 4000.0);
     //t = easeInOutElastic(t);
@@ -144,6 +153,11 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
           float green = sin(value * 2.0 * PI + 2.0 * PI / 3.0);
           float blue = sin(value * 2.0 * PI + 4.0 * PI / 3.0);
           return vec3(red, green, blue) * 0.5 + 0.5; // Scale and shift to [0, 1]
+        }
+        
+        float easeOutQuad(float x) {
+          
+          return x < 1.0 ? 1.0 - (1.0 - x) * (1.0 - x) : 1.0;
         }
 
         float easeInOutElastic(float x) {
