@@ -2,8 +2,9 @@ import React, { useState, ChangeEvent } from 'react';
 
 import ThreeRayMarch, { default_transfer } from "./three_ray_march";
 import ThreeTextureDiffusion from "./three_rd";
+import BezierSpiral from './BezierSpiral';
 import OffscreenTextInput from './offscreen_text_input';
-import SocialIcon from './socials';
+//import SocialIcon from './socials';
 import "./App.css";
 
 interface TextInputProps {
@@ -73,30 +74,29 @@ function App() {
     <div>
       <ThreeRayMarch className="logo" inputText={data} inputCanvas1={canvas1} uniqueKey={uniqueKey} />
       <div className='parent-div'>
-
         <div>
           <OffscreenTextInput onCanvas={setCanvas1} onText={setUniqueKey} initialText={"OnSequitur"} />
           <CollapsibleTextInput onInputChange={setData} initialText={default_transfer()} />
         </div>
+        <BezierSpiral />
         <div className='red blurb'>
           <p>
             This is the online portfolio for John Delaney. There's not much here,
-            but perhaps that will change.  Eventually I'll blog about Darboux Cyclides and
+            but perhaps that will change. Eventually I'll blog about Darboux Cyclides and
             least squared quadrics, cylinders and all kinds of exciting geometry stuff, but for now, there's a shader up there.
-
           </p>
           <p>
             email: "a dot pet dot rock at gmail dot com"
           </p>
-
         </div>
       </div>
-
+      {/*
       <div className='footer'>
         <SocialIcon url="https://github.com/apetrock/libgaudi" icon="github.svg" />
         <SocialIcon url="https://genart.social/@Onsequitur" icon="masto.svg" />
         <SocialIcon url="https://www.linkedin.com/in/john-delaney-9295073/" icon="linkedin.svg" />
       </div>
+      */}
     </div>
   );
 }
