@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -70,6 +70,9 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
   const cubeRef = useRef(null);
   const tex0Ref = useRef(null);
   const tex1Ref = useRef(null);
+
+  // Add state for container dimensions
+  const [dimensions, setDimensions] = useState({ width: 600, height: 200 });
 
   useEffect(() => {
     const loader = new THREE.TextureLoader();
@@ -255,9 +258,64 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
     return material;
   }
 
+  // Add resize observer effect
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateDimensions = () => {
+      const { clientWidth, clientHeight } = container;
+      // Maintain aspect ratio but respect container constraints
+      const aspectRatio = 3; // 600/200 = 3:1 aspect ratio
+      let width = clientWidth;
+      let height = width / aspectRatio;
+      
+      // If calculated height is too tall for container, constrain by height
+      if (height > clientHeight) {
+        height = clientHeight;
+        width = height * aspectRatio;
+      }
+      
+      // Minimum dimensions
+      width = Math.max(width, 300);
+      height = Math.max(height, 100);
+      
+      setDimensions({ width, height });
+    };
+
+    // Initial size
+    updateDimensions();
+
+    // ResizeObserver for container size changes
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    resizeObserver.observe(container);
+
+    // Window resize listener as fallback
+    window.addEventListener('resize', updateDimensions);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, []);
+
+  // Update renderer when dimensions change
+  useEffect(() => {
+    if (rendererRef.current && cameraRef.current) {
+      const { width, height } = dimensions;
+      
+      // Update renderer size
+      rendererRef.current.setSize(width, height);
+      
+      // Update camera aspect ratio
+      cameraRef.current.aspect = width / height;
+      cameraRef.current.updateProjectionMatrix();
+    }
+  }, [dimensions]);
+
   useEffect(() => {
 
-    const scale = new THREE.Vector3(8.0, 2.0, 2.0);
+    const scale = new THREE.Vector3(4.0, 1.0, 1.0); // Keep the reduced cube size
     const position = new THREE.Vector3(0.0, 0.0, 0.0);
 
     const container = containerRef.current;
@@ -269,13 +327,16 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
     // Initialize scene, camera, and renderer
     const scene = new THREE.Scene();
 
+    // Use dynamic dimensions
+    const { width, height } = dimensions;
+
     const camera = new THREE.PerspectiveCamera(
       40,
-      container.clientWidth / container.clientHeight,
+      width / height,
       0.1,
       1000
     );
-    camera.position.z = 5;
+    camera.position.z = 3.5;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -283,11 +344,16 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
     cameraRef.current = camera;
     rendererRef.current = renderer;
 
-    // Set up renderer
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    // Set up renderer with dynamic size
+    renderer.setSize(width, height);
+    
+    // Center the canvas in the container
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.margin = '0 auto';
+    
     container.appendChild(renderer.domElement);
 
-    // Create cube
+    // Create cube with original scale - don't modify the 3D objects
     let material = build_volume_material(default_transfer());
 
     const geometry = new THREE.BoxGeometry();
@@ -321,7 +387,7 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
       container.removeChild(renderer.domElement);
       renderer.dispose();
     };
-  }, []);
+  }, [dimensions]); // Add dimensions as dependency
 
 
   useEffect(() => {

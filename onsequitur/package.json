@@ -11,6 +11,8 @@
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@types/three": "^0.160.0",
+    "katex": "^0.16.22",
+    "lucide-react": "^0.513.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -19,13 +21,15 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "predeploy": "pnpm run build",
+    "deploy-gh": "gh-pages -d build",
     "start_3001": "PORT=3001 react-scripts start",
     "start": "react-scripts start",
+    "prebuild": "node -e \"const fs = require('fs'); const path = require('path'); if (!fs.existsSync('public/socials')) fs.mkdirSync('public/socials', {recursive: true}); ['github.svg', 'linkedin.svg', 'masto.svg'].forEach(file => fs.copyFileSync(path.join('socials', file), path.join('public/socials', file)));\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:css": "tailwindcss -i ./src/index.css -o ./src/tailwind.css --watch"
   },
   "eslintConfig": {
     "extends": [
@@ -47,7 +51,10 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.17.0",
+    "@types/katex": "^0.16.7",
+    "autoprefixer": "^10.4.0",
     "gh-pages": "^6.1.1",
-    "tailwindcss": "^4.1.7"
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.17"
   }
 }

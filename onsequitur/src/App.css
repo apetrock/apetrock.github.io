@@ -37,6 +37,9 @@ body {
   width: 100%;
 }
 
+/* App.css - Legacy styles (mostly migrated to Tailwind) */
+
+/* Keep any styles that might still be referenced by Three.js components or other external libraries */
 .CollapsibleTextInputPanel {
   display: flex;
   align-items: flex-start;
