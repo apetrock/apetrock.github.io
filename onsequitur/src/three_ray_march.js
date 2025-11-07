@@ -71,9 +71,6 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
   const tex0Ref = useRef(null);
   const tex1Ref = useRef(null);
 
-  // Add state for container dimensions
-  const [dimensions, setDimensions] = useState({ width: 600, height: 200 });
-
   useEffect(() => {
     const loader = new THREE.TextureLoader();
     loader.load(process.env.PUBLIC_URL + '/onsequitur.png', (texture) => {
@@ -257,20 +254,91 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
 
     return material;
   }
+  // Initialize ThreeJS scene only once on mount
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || rendererRef.current) return; // Don't reinitialize if already exists
 
-  // Add resize observer effect
+    const scale = new THREE.Vector3(4.0, 1.0, 1.0);
+    const position = new THREE.Vector3(0.0, 0.0, 0.0);
+
+    // Initialize scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, 3, 0.1, 1000); // Default aspect ratio
+    camera.position.z = 3.5;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    
+    // Store refs
+    sceneRef.current = scene;
+    cameraRef.current = camera;
+    rendererRef.current = renderer;
+
+    // Set initial size and style
+    renderer.setSize(600, 200); // Default size
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.margin = '0 auto';
+    
+    container.appendChild(renderer.domElement);
+
+    // Create cube
+    const material = build_volume_material(default_transfer());
+    const geometry = new THREE.BoxGeometry();
+    const cube = new THREE.Mesh(geometry, material);
+
+    cube.scale.set(scale.x, scale.y, scale.z);
+    cube.position.set(position.x, position.y, position.z);
+    scene.add(cube);
+    cubeRef.current = cube;
+
+    // Set up controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Animation loop
+    const animate = (time) => {
+      requestAnimationFrame(animate);
+
+      if (cubeRef.current && cubeRef.current.material) {
+        const material = cubeRef.current.material;
+        material.uniforms.time.value = time;
+        material.uniforms.volume_scale.value = cube.scale;
+        material.uniforms.volume_pos.value = cube.position;
+      }
+      
+      renderer.render(scene, camera);
+    };
+    animate(0);
+
+    // Clean up on unmount
+    return () => {
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
+      // Clear refs
+      sceneRef.current = null;
+      cameraRef.current = null;
+      rendererRef.current = null;
+      cubeRef.current = null;
+    };
+  }, []); // Only run once on mount
+
+  // Handle resize separately
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const updateDimensions = () => {
+    const updateSize = () => {
+      if (!rendererRef.current || !cameraRef.current) return;
+
       const { clientWidth, clientHeight } = container;
-      // Maintain aspect ratio but respect container constraints
-      const aspectRatio = 3; // 600/200 = 3:1 aspect ratio
+      const aspectRatio = 3; // 600/200 = 3:1
+      
       let width = clientWidth;
       let height = width / aspectRatio;
       
-      // If calculated height is too tall for container, constrain by height
       if (height > clientHeight) {
         height = clientHeight;
         width = height * aspectRatio;
@@ -280,114 +348,27 @@ let ThreeRayMarch = ({ className, inputText, inputCanvas1, uniqueKey }) => {
       width = Math.max(width, 300);
       height = Math.max(height, 100);
       
-      setDimensions({ width, height });
+      // Update renderer and camera
+      rendererRef.current.setSize(width, height);
+      cameraRef.current.aspect = width / height;
+      cameraRef.current.updateProjectionMatrix();
     };
 
     // Initial size
-    updateDimensions();
+    updateSize();
 
-    // ResizeObserver for container size changes
-    const resizeObserver = new ResizeObserver(updateDimensions);
+    // Set up resize observer
+    const resizeObserver = new ResizeObserver(updateSize);
     resizeObserver.observe(container);
-
-    // Window resize listener as fallback
-    window.addEventListener('resize', updateDimensions);
+    
+    // Fallback for window resize
+    window.addEventListener('resize', updateSize);
 
     return () => {
       resizeObserver.disconnect();
-      window.removeEventListener('resize', updateDimensions);
+      window.removeEventListener('resize', updateSize);
     };
-  }, []);
-
-  // Update renderer when dimensions change
-  useEffect(() => {
-    if (rendererRef.current && cameraRef.current) {
-      const { width, height } = dimensions;
-      
-      // Update renderer size
-      rendererRef.current.setSize(width, height);
-      
-      // Update camera aspect ratio
-      cameraRef.current.aspect = width / height;
-      cameraRef.current.updateProjectionMatrix();
-    }
-  }, [dimensions]);
-
-  useEffect(() => {
-
-    const scale = new THREE.Vector3(4.0, 1.0, 1.0); // Keep the reduced cube size
-    const position = new THREE.Vector3(0.0, 0.0, 0.0);
-
-    const container = containerRef.current;
-
-    if (!container) {
-      return;
-    }
-
-    // Initialize scene, camera, and renderer
-    const scene = new THREE.Scene();
-
-    // Use dynamic dimensions
-    const { width, height } = dimensions;
-
-    const camera = new THREE.PerspectiveCamera(
-      40,
-      width / height,
-      0.1,
-      1000
-    );
-    camera.position.z = 3.5;
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-
-    sceneRef.current = scene;
-    cameraRef.current = camera;
-    rendererRef.current = renderer;
-
-    // Set up renderer with dynamic size
-    renderer.setSize(width, height);
-    
-    // Center the canvas in the container
-    renderer.domElement.style.display = 'block';
-    renderer.domElement.style.margin = '0 auto';
-    
-    container.appendChild(renderer.domElement);
-
-    // Create cube with original scale - don't modify the 3D objects
-    let material = build_volume_material(default_transfer());
-
-    const geometry = new THREE.BoxGeometry();
-    const cube = new THREE.Mesh(geometry, material);
-
-    cube.scale.set(scale.x, scale.y, scale.z);
-    cube.position.set(position.x, position.y, position.z);
-    scene.add(cube);
-    cubeRef.current = cube;
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-
-    // Set up animation loop
-    const animate = (time) => {
-
-      requestAnimationFrame(animate);
-
-      material = cubeRef.current.material;
-      material.uniforms.time.value = time;
-      material.uniforms.volume_scale.value = cube.scale;
-      material.uniforms.volume_pos.value = cube.position;
-      // Render scene
-      renderer.render(scene, camera);
-    };
-    animate(0);
-
-    // Clean up
-    return () => {
-      container.removeChild(renderer.domElement);
-      renderer.dispose();
-    };
-  }, [dimensions]); // Add dimensions as dependency
+  }, []); // Only set up once
 
 
   useEffect(() => {

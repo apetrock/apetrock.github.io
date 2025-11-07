@@ -59,12 +59,15 @@ const OffscreenTextInput = ({ onCanvas, onText, initialText = '' }) => {
             // Initialize the component here
         }).catch((error) => {
             console.error('Failed to load font', error);
-        });
-    }, [fillText]);
+        });    }, [fillText]);
 
     return (
-        <div className='flex justify-center items-center h-full w-full'>
-            <input ref={inputRef} type="text" className='text-base border border-neutral-700 outline-none bg-transparent text-red-500 text-left p-2' />
+        <div className='flex items-center justify-center w-full'>
+            <input 
+                ref={inputRef} 
+                type="text" 
+                className='text-base border border-neutral-700 outline-none bg-transparent text-red-500 text-left p-2' 
+            />
             <span className='text-red-500 ml-2'> &lt;---try typing some text!</span>
         </div>
     );

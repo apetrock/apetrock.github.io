@@ -1,14 +1,19 @@
 import React, { useState, ChangeEvent } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 
 import ThreeRayMarch, { default_transfer } from "./three_ray_march";
 import ThreeTextureDiffusion from "./three_rd";
-import BezierSpiral from './BezierSpiral';
+import BezierSpiralDrawer from './BezierSpiralDrawer';
+import { BezierSpiralDoc } from './BezierSpiralDoc';
+import AudioBufferGenerator from './AudioBufferGenerator';
+import KarplusStrongGenerator from './KarplusStrongGenerator';
+
 import OffscreenTextInput from './offscreen_text_input';
 import SocialIcon from './SocialIcon';
 import MarkdownRenderer from './MarkdownRenderer';
 import LaTeXRenderer from './LaTeXRenderer';
+import NotFound from './NotFound';
 // import "./App.css"; // We will remove this
-import useSections from './useSections';
 
 interface TextInputProps {
   onInputChange: (value: string) => void;
@@ -44,104 +49,89 @@ const CollapsibleTextInput: React.FC<TextInputProps> = ({ onInputChange, initial
   );
 };
 
+// Navigation component
+const Navigation: React.FC = () => {
+  const location = useLocation();
+  
+  const navItems = [
+    { path: '/', label: 'about' },
+    { path: '/spiral', label: 'Bezier Spiral' },
+    { path: '/audio', label: 'Audio' },
+    { path: '/karplus', label: 'Karplus-Strong' },
+  ];
 
-function App() {
+  return (
+    <div className="flex justify-center my-6">
+      {navItems.map((item) => (
+        <Link
+          key={item.path}
+          to={item.path}
+          className={`text-sm mx-1 text-red-600 hover:underline focus:outline-none transition-colors ${
+            location.pathname === item.path ? 'font-bold' : ''
+          }`}
+        >
+          {item.label}
+        </Link>
+      ))}
+    </div>
+  );
+};
+
+// Main content component
+const MainContent: React.FC = () => {
   const [data, setData] = useState('');
   const [canvas1, setCanvas1] = useState(null);
   const [uniqueKey, setUniqueKey] = useState('');
-  
-  const sections = [
-    {
-      id: 'blurb',
-      label: 'about',
-      component: (
-        <div className='text-red-500 text-left'> {/* Formerly red blurb */}
-          <p className="mb-4">
-            This is the online portfolio for John Delaney. There's not much here,
-            but perhaps that will change. Eventually I'll blog about Darboux Cyclides and
-            least squared quadrics, cylinders and all kinds of exciting geometry stuff, but for now, there's a shader up there.
-          </p>
-          <p>
-            email: "a dot pet dot rock at gmail dot com"
-          </p>
-        </div>
-      ),
-    },
-    {
-      id: 'spiral',
-      label: 'Bezier Spiral',
-      component: <BezierSpiral />,
-    },
-    {
-      id: 'markdown',
-      label: 'Markdown & LaTeX',
-      component: (
-        <div className="text-left">
-          <MarkdownRenderer>
-{`# Simple Markdown Demo
-
-This is a **bold** statement and this is *italic text*.
-
-## Features
-- Headers (# ## ###)
-- **Bold** and *italic* text
-- [Links to GitHub](https://github.com/apetrock/libgaudi)
-- Inline \`code\` formatting
-
-## Perfect for blogging about geometry!`}
-          </MarkdownRenderer>
-          
-          <div className="mt-6">
-            <h3 className="text-xl font-bold text-red-500 mb-3">LaTeX Math Examples:</h3>
-            
-            <LaTeXRenderer>
-              {"E = mc^2"}
-            </LaTeXRenderer>
-            
-            <LaTeXRenderer>
-              {"x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"}
-            </LaTeXRenderer>
-            
-            <LaTeXRenderer>
-              {"\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}"}
-            </LaTeXRenderer>
-            
-            <p className="text-red-500 mt-4">
-              Now you can easily mix markdown content with LaTeX math using two simple components!
-            </p>
-          </div>
-        </div>
-      ),
-    },
-  ];
-
-  const { buttons, sectionsContent } = useSections(sections, 'blurb');
 
   return (
-    <div className="bg-black min-h-screen text-white"> {/* Removed test class */}
-      <div className="flex justify-center items-center h-48 px-4"> {/* Changed p-2 to px-4 to reduce vertical padding */}
-        <div className="w-full mx-4 h-full flex justify-center items-center"> {/* Removed max-width constraint and added horizontal margin */}
+    <div className="bg-black min-h-screen text-white">
+      <div className="flex justify-center items-center h-48 px-4">
+        <div className="w-full mx-4 h-full flex justify-center items-center">
           <ThreeRayMarch className="w-full h-full" inputText={data} inputCanvas1={canvas1} uniqueKey={uniqueKey} />
         </div>
       </div>
-
-      <div className="p-4">
+      <div className="mx-10 md:mx-[300px] my-4">
         <OffscreenTextInput onCanvas={setCanvas1} onText={setUniqueKey} initialText={"OnSequitur"} />
         <CollapsibleTextInput onInputChange={setData} initialText={default_transfer()} />
       </div>
       
-      {/* Add the section navigation buttons */}
-      <div className="flex justify-center my-6">
-        {buttons}
+      <Navigation />
+      
+      <div className='mx-10 md:mx-[300px] my-4 flex justify-center'>
+        <Routes>
+          <Route path="/" element={
+            <div className='text-red-500 text-left'>
+              <p className="mb-4">
+                This is the online portfolio for John Delaney. There's not much here,
+                but perhaps that will change. Eventually I'll blog about Darboux Cyclides and
+                least squared quadrics, cylinders and all kinds of exciting geometry stuff, but for now, there's a shader up there.
+              </p>
+              <p>
+                email: "a dot pet dot rock at gmail dot com"
+              </p>
+            </div>
+          } />
+          <Route path="/spiral" element={<BezierSpiralDoc />} />
+          <Route path="/audio" element={<AudioBufferGenerator />} />
+          <Route path="/karplus" element={<KarplusStrongGenerator />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </div>
       
-      <div className='mx-10 md:mx-[300px] my-4 flex justify-center'>{sectionsContent}</div> {/* Changed activeComponent to sectionsContent */}
-      <div className='fixed bottom-0 ml-10 p-2'> {/* Formerly footer */}
+      <div className='fixed bottom-0 ml-10 p-2'>
         <SocialIcon url="https://github.com/apetrock/libgaudi" icon="github.svg" />
         <SocialIcon url="https://genart.social/@Onsequitur" icon="masto.svg" />
         <SocialIcon url="https://www.linkedin.com/in/john-delaney-9295073/" icon="linkedin.svg" />
       </div>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <MainContent />
+    </Router>
   );
 }
 
